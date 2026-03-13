@@ -20,6 +20,8 @@ urlpatterns = [
     path("ai/apply", views.apply_changes),
     path("fs/list", views.list_files),
     path("fs/stats", views.get_stats),
+    path("fs/create", views.create_fs_entry),
+    path("fs/delete", views.delete_fs_entry),
     path("file", views.file_endpoint),
     path("settings", views.settings_endpoint),
 ]

@@ -187,6 +187,28 @@ def get_stats(request):
 
 
 @api_view
+def create_fs_entry(request):
+    if request.method != "POST":
+        raise ApiError("Method not allowed", status_code=405)
+
+    payload = parse_json_body(request)
+    state = runtime.get_app_state(request, require_workspace=True)
+    files.create_path(state.current_project_root, payload.get("path", ""), payload.get("type", "file"))
+    return json_response({"status": "ok"})
+
+
+@api_view
+def delete_fs_entry(request):
+    if request.method != "POST":
+        raise ApiError("Method not allowed", status_code=405)
+
+    payload = parse_json_body(request)
+    state = runtime.get_app_state(request, require_workspace=True)
+    files.delete_path(state.current_project_root, payload.get("path", ""))
+    return json_response({"status": "ok"})
+
+
+@api_view
 def file_endpoint(request):
     state = runtime.get_app_state(request, require_workspace=True)
     if request.method == "GET":

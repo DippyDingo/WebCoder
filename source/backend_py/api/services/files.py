@@ -1,5 +1,7 @@
+import shutil
 from pathlib import PurePosixPath
 
+from .errors import ApiError
 from .path_utils import safe_join
 
 
@@ -73,6 +75,40 @@ def write_file_content(root_path, relative_path, content):
     full_path, _ = safe_join(root_path, relative_path)
     full_path.parent.mkdir(parents=True, exist_ok=True)
     full_path.write_text(content, encoding="utf-8")
+
+
+def create_path(root_path, relative_path, node_type):
+    full_path, normalized_path = safe_join(root_path, relative_path)
+    if not normalized_path:
+        raise ApiError("Path is required", status_code=400)
+    if full_path.exists():
+        raise ApiError("Path already exists", status_code=400)
+
+    if node_type == "folder":
+        full_path.mkdir(parents=True, exist_ok=False)
+        return
+
+    if node_type != "file":
+        raise ApiError("Unsupported node type", status_code=400)
+
+    full_path.parent.mkdir(parents=True, exist_ok=True)
+    full_path.write_text("", encoding="utf-8")
+
+
+def delete_path(root_path, relative_path):
+    full_path, normalized_path = safe_join(root_path, relative_path)
+    if not normalized_path:
+        raise ApiError("Path is required", status_code=400)
+    if normalized_path.startswith(".aicoder/history/"):
+        raise ApiError("History previews cannot be deleted", status_code=400)
+    if not full_path.exists():
+        raise FileNotFoundError(relative_path)
+
+    if full_path.is_dir():
+        shutil.rmtree(full_path)
+        return
+
+    full_path.unlink()
 
 
 def calculate_stats(root_path, settings_payload):

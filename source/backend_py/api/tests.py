@@ -38,6 +38,19 @@ class PathSafetyTests(SimpleTestCase):
 
 
 class ServiceTests(TestCase):
+    def test_create_and_delete_path_support_files_and_folders(self):
+        with workspace_tempdir() as temp_dir:
+            project_root = Path(temp_dir)
+
+            files.create_path(project_root, "notes/todo.txt", "file")
+            self.assertTrue((project_root / "notes" / "todo.txt").is_file())
+
+            files.create_path(project_root, "notes/archive", "folder")
+            self.assertTrue((project_root / "notes" / "archive").is_dir())
+
+            files.delete_path(project_root, "notes")
+            self.assertFalse((project_root / "notes").exists())
+
     def test_git_log_repairs_mojibake_commit_message(self):
         expected_message = (
             "\u0414\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u043e "
@@ -227,6 +240,35 @@ class ApiTests(TestCase):
             )
 
             self.assertEqual(response.status_code, 400)
+
+    def test_fs_create_and_delete_manage_workspace_entries(self):
+        with override_settings(AICODER_WORKDIR=self.base_dir):
+            self.client_one.post("/api/project/create", data=json.dumps({"name": "alpha"}), content_type="application/json")
+            self.client_one.post("/api/project/open", data=json.dumps({"name": "alpha"}), content_type="application/json")
+
+            create_folder = self.client_one.post(
+                "/api/fs/create",
+                data=json.dumps({"path": "docs", "type": "folder"}),
+                content_type="application/json",
+            )
+            create_file = self.client_one.post(
+                "/api/fs/create",
+                data=json.dumps({"path": "docs/readme.txt", "type": "file"}),
+                content_type="application/json",
+            )
+
+            self.assertEqual(create_folder.status_code, 200)
+            self.assertEqual(create_file.status_code, 200)
+            self.assertTrue((self.base_dir / "projects" / "alpha" / "docs" / "readme.txt").exists())
+
+            delete_folder = self.client_one.post(
+                "/api/fs/delete",
+                data=json.dumps({"path": "docs"}),
+                content_type="application/json",
+            )
+
+            self.assertEqual(delete_folder.status_code, 200)
+            self.assertFalse((self.base_dir / "projects" / "alpha" / "docs").exists())
 
     def test_system_open_is_blocked_outside_local_mode(self):
         with override_settings(AICODER_WORKDIR=self.base_dir, AICODER_LOCAL_MODE=False):

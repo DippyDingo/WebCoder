@@ -29,6 +29,7 @@ interface AppState {
     setCurrentFile: (path: string | null, content: string) => void;
     setSettings: (s: Settings) => void;
     toggleFocus: (path: string, add: boolean) => void;
+    pruneFocusPath: (path: string) => Promise<void>;
     triggerRefresh: (scope?: 'files' | 'git' | 'all') => void;
     loadStats: () => void;
     setMessages: (fn: (prev: Message[]) => Message[]) => void;
@@ -84,6 +85,31 @@ export const useStore = create<AppState>((set, get) => ({
             .catch((error) => {
                 console.error('Failed to save settings:', error);
             });
+    },
+
+    pruneFocusPath: async (path) => {
+        const settings = get().settings;
+        const matchesPathOrChildren = (value: string) => {
+            const cleanValue = value.startsWith('!') ? value.slice(1) : value;
+            return cleanValue === path || cleanValue.startsWith(path + '/');
+        };
+
+        const newSettings = {
+            ...settings,
+            context_focus: settings.context_focus.filter((value) => !matchesPathOrChildren(value)),
+        };
+
+        set({ settings: newSettings });
+
+        try {
+            await fetch('/api/settings', {
+                method: 'POST',
+                body: JSON.stringify(newSettings),
+            });
+            get().triggerRefresh('files');
+        } catch (error) {
+            console.error('Failed to prune focus path:', error);
+        }
     },
 
     triggerRefresh: (scope = 'all') => {

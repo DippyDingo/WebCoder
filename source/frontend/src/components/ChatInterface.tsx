@@ -166,7 +166,7 @@ export const ChatInterface = () => {
                             <div className="grid gap-3 px-6 py-5 md:grid-cols-3">
                                 {emptyStateSteps.map((step, index) => (
                                     <div key={step} className="rounded-xl border border-border/50 bg-background/40 p-4">
-                                        <div className="mb-3 inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-500/20 bg-emerald-500/10 text-xs font-semibold text-emerald-200">
+                                        <div className="emerald-pill mb-3 inline-flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold">
                                             {index + 1}
                                         </div>
                                         <p className="text-sm leading-6 text-foreground/90">{step}</p>

@@ -106,7 +106,7 @@ export const Dashboard = ({ onOpen }: DashboardProps) => {
         <div className="subtle-grid min-h-screen bg-background px-8 pb-8 pt-16 font-sans text-foreground">
             <div className="mx-auto w-full max-w-7xl">
                 <header className="mb-10 border-b border-border/40 pb-6 text-left">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-emerald-200">
+                    <div className="emerald-pill inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em]">
                         {t('dashboard.badge')}
                     </div>
                     <h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">{t('dashboard.title')}</h1>
@@ -124,7 +124,7 @@ export const Dashboard = ({ onOpen }: DashboardProps) => {
                             </p>
                         </div>
                         {systemIssues.length === 0 && (
-                            <div className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-200">
+                            <div className="emerald-pill rounded-full border px-3 py-1 text-xs font-medium">
                                 {t('common.status_ok')}
                             </div>
                         )}
@@ -156,7 +156,7 @@ export const Dashboard = ({ onOpen }: DashboardProps) => {
                         >
                             <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-emerald-500/8 to-transparent" />
                             <div className="flex flex-col items-start gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 transition-colors duration-300 group-hover:bg-emerald-500/20 group-hover:text-emerald-100">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 transition-colors duration-300 group-hover:bg-emerald-500/20 group-hover:text-emerald-800 dark:text-emerald-300 dark:group-hover:text-emerald-100">
                                     <Plus className="h-4 w-4" />
                                 </div>
                                 <div>
@@ -168,7 +168,7 @@ export const Dashboard = ({ onOpen }: DashboardProps) => {
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 text-xs font-medium text-emerald-200">
+                            <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-200">
                                 <span>{t('dashboard.create_first')}</span>
                                 <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                             </div>
@@ -223,7 +223,7 @@ export const Dashboard = ({ onOpen }: DashboardProps) => {
                         >
                             <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-400/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                             <div className="flex flex-col items-start gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
                                     <Terminal size={18} />
                                 </div>
                                 <div>

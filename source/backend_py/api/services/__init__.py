@@ -1,1 +1,1 @@
-# Service package for the Django AiCoder backend.
+# Service package for the Django shikumi backend.

@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useStore } from '@/store';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
+import { FILE_LOADING_CONTENT } from '@/lib/editor-state';
 
 interface Commit {
     hash: string;
@@ -66,7 +67,7 @@ const CommitItem = memo(({ commit, onOpen, onEdit, onRevert, isCurrent }: { comm
                 {isCurrent ? (
                     <div className="flex shrink-0 items-center gap-2">
                         <span
-                            className="inline-flex h-8 items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 text-xs font-medium text-emerald-200"
+                            className="emerald-pill inline-flex h-8 items-center rounded-full border px-3 text-xs font-medium"
                             title={t('history.current_tooltip')}
                         >
                             {t('history.current')}
@@ -74,7 +75,7 @@ const CommitItem = memo(({ commit, onOpen, onEdit, onRevert, isCurrent }: { comm
                         <Button
                             variant="outline"
                             size="sm"
-                            className="h-8 rounded-full border-emerald-500/20 bg-emerald-500/5 px-3 text-xs text-emerald-100 hover:bg-emerald-500/10 hover:text-white"
+                            className="edit-pill h-8 rounded-full border px-3 text-xs"
                             onClick={(event) => {
                                 event.stopPropagation();
                                 onEdit(commit);
@@ -89,7 +90,7 @@ const CommitItem = memo(({ commit, onOpen, onEdit, onRevert, isCurrent }: { comm
                     <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 shrink-0 rounded-full border-red-500/20 bg-red-500/5 px-3 text-xs text-red-200 hover:bg-red-500/10 hover:text-red-100"
+                        className="soft-danger h-8 shrink-0 rounded-full border px-3 text-xs"
                         onClick={(event) => {
                             event.stopPropagation();
                             onRevert(commit);
@@ -330,7 +331,7 @@ export const GitHistory = () => {
     };
 
     const handleOpenCommit = (commit: Commit) => {
-        setCurrentFile(`.aicoder/history/${commit.hash}.diff`, "Loading...");
+        setCurrentFile(`.aicoder/history/${commit.hash}.diff`, FILE_LOADING_CONTENT);
     };
 
     return (

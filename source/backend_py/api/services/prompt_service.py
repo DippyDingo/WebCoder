@@ -3,7 +3,7 @@ from pathlib import Path
 from . import files
 from .settings_service import AICODER_DIR, DEFAULT_PROMPT_TEMPLATE, load_prompt_template
 
-LEGACY_PLACEHOLDER = (
+LEGACY_BROKEN_PLACEHOLDER = (
     "Мне нужно чтобы шаблоны prompt и settings брались только из файлов prompt.md и settings.json "
     "которые рядом с ./aicoder, а в коде убери содержимое."
 )
@@ -24,7 +24,8 @@ def generate_prompt(root_path, task, settings_payload, base_dir=None):
 
     template = load_prompt_template(root_path, base_dir=base_dir) or DEFAULT_PROMPT_TEMPLATE
     final_prompt = template.replace("{{TASK}}", task)
-    final_prompt = final_prompt.replace(LEGACY_PLACEHOLDER, task)
+    # Keep compatibility with an older corrupted prompt template that may still exist on disk.
+    final_prompt = final_prompt.replace(LEGACY_BROKEN_PLACEHOLDER, task)
     final_prompt = final_prompt.replace("{{FILES_XML}}", "\n".join(file_xml_parts))
 
     aicoder_dir = root_path / AICODER_DIR

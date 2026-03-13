@@ -232,13 +232,17 @@ def frontend_app(request, asset_path=""):
 
     if asset_path and dist_dir.exists() and requested_path.is_file() and dist_dir in requested_path.parents:
         mime_type, _ = mimetypes.guess_type(requested_path.name)
-        return FileResponse(open(requested_path, "rb"), content_type=mime_type or "application/octet-stream")
+        response = FileResponse(open(requested_path, "rb"), content_type=mime_type or "application/octet-stream")
+        response["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        return response
 
     index_path = dist_dir / "index.html"
     if index_path.exists():
-        return FileResponse(open(index_path, "rb"), content_type="text/html; charset=utf-8")
+        response = FileResponse(open(index_path, "rb"), content_type="text/html; charset=utf-8")
+        response["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        return response
 
     return HttpResponse(
-        "Frontend build not found. Run `npm run build` in source/frontend or use the Vite dev server.",
+        "Frontend build not found. Run `npm run build` in source/frontend or use the Vite dev server for shikumi.",
         content_type="text/plain; charset=utf-8",
     )

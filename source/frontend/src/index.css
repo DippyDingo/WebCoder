@@ -4,32 +4,41 @@
 
 @layer base {
   :root {
-    /* Supabase / Scale Light Mode (Fallback, though we focus on Dark) */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 142 76% 36%; /* Supabase Green */
-    --primary-foreground: 355.7 100% 97.3%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --background: 24 32% 96%;
+    --foreground: 225 20% 22%;
+    --card: 24 36% 98%;
+    --card-foreground: 225 20% 22%;
+    --popover: 24 36% 98%;
+    --popover-foreground: 225 20% 22%;
+    --primary: 157 33% 46%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 18 28% 92%;
+    --secondary-foreground: 225 16% 28%;
+    --muted: 20 24% 93%;
+    --muted-foreground: 225 12% 46%;
+    --accent: 340 36% 93%;
+    --accent-foreground: 225 18% 26%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142 76% 36%;
+    --border: 24 20% 84%;
+    --input: 24 22% 88%;
+    --ring: 157 33% 46%;
     --radius: 0.3rem;
+
+    --page-glow-top: rgba(182, 211, 197, 0.34);
+    --page-glow-side: rgba(233, 207, 216, 0.28);
+    --grid-line: rgba(136, 119, 110, 0.07);
+    --workspace-shell-gradient: linear-gradient(180deg, rgba(251, 246, 243, 0.98) 0%, rgba(246, 239, 235, 1) 100%);
+    --workspace-sidebar-gradient: linear-gradient(180deg, rgba(239, 233, 238, 0.92) 0%, rgba(232, 226, 234, 0.96) 100%);
+    --workspace-main-gradient: linear-gradient(180deg, rgba(182, 211, 197, 0.16) 0%, rgba(255, 255, 255, 0) 24%);
+    --panel-surface-shadow: 0 18px 42px rgba(148, 132, 124, 0.12);
+    --scrollbar-thumb: #cdbdb5;
+    --scrollbar-thumb-hover: #baa8a0;
+    --scrollbar-thumb-border: #f6efeb;
   }
  
   .dark {
-    /* Supabase Dark Mode inspired (Zinc-950 base) */
-    --background: 240 10% 3.9%; /* #09090b */
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     
     --card: 240 10% 3.9%;
@@ -38,10 +47,10 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
     
-    --primary: 142 70% 50%; /* Emerald 500 */
+    --primary: 142 70% 50%;
     --primary-foreground: 144 80% 5%;
     
-    --secondary: 240 3.7% 15.9%; /* Zinc 800 */
+    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     
     --muted: 240 3.7% 15.9%;
@@ -53,9 +62,20 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     
-    --border: 240 3.7% 15.9%; /* Subtle borders */
+    --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 142 70% 50%;
+
+    --page-glow-top: rgba(16, 185, 129, 0.08);
+    --page-glow-side: rgba(251, 191, 36, 0.06);
+    --grid-line: rgba(255, 255, 255, 0.02);
+    --workspace-shell-gradient: linear-gradient(180deg, rgba(9, 9, 11, 0.96) 0%, rgba(9, 9, 11, 1) 100%);
+    --workspace-sidebar-gradient: linear-gradient(180deg, rgba(2, 6, 23, 0.55) 0%, rgba(2, 6, 23, 0.62) 100%);
+    --workspace-main-gradient: linear-gradient(180deg, rgba(15, 23, 42, 0.12) 0%, rgba(9, 9, 11, 0) 25%);
+    --panel-surface-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+    --scrollbar-thumb: #27272a;
+    --scrollbar-thumb-hover: #3f3f46;
+    --scrollbar-thumb-border: #09090b;
   }
 }
  
@@ -67,8 +87,8 @@
     @apply bg-background text-foreground antialiased selection:bg-emerald-500/30 selection:text-emerald-100;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     background-image:
-      radial-gradient(circle at top, rgba(16, 185, 129, 0.08), transparent 30%),
-      radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.06), transparent 22%);
+      radial-gradient(circle at top, var(--page-glow-top), transparent 30%),
+      radial-gradient(circle at 80% 20%, var(--page-glow-side), transparent 22%);
   }
 }
 
@@ -81,17 +101,18 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a; /* Zinc 800 */
+  background: var(--scrollbar-thumb);
   border-radius: 5px;
-  border: 2px solid #09090b; /* Match bg */
+  border: 2px solid var(--scrollbar-thumb-border);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46; /* Zinc 700 */
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Utilities */
 .compact-header {
-    @apply min-h-[64px] border-b bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-start justify-between gap-4 shrink-0 z-10;
+    @apply min-h-[64px] border-b px-4 py-3 backdrop-blur flex items-start justify-between gap-4 shrink-0 z-10;
+    background-color: hsl(var(--background) / 0.88);
 }
 
 .app-header {
@@ -103,35 +124,40 @@
 }
 
 .workspace-shell {
-    background-image:
-      linear-gradient(180deg, rgba(9, 9, 11, 0.96) 0%, rgba(9, 9, 11, 1) 100%);
+    background-image: var(--workspace-shell-gradient);
 }
 
 .workspace-sidebar {
-    @apply bg-slate-950/55 backdrop-blur-sm;
+    @apply backdrop-blur-sm;
+    background-image: var(--workspace-sidebar-gradient);
 }
 
 .workspace-main {
-    background-image:
-      linear-gradient(180deg, rgba(15, 23, 42, 0.12) 0%, rgba(9, 9, 11, 0) 25%);
+    background-image: var(--workspace-main-gradient);
 }
 
 .panel-surface {
-    @apply rounded-xl border border-border/60 bg-card/60 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur-sm;
+    @apply rounded-xl border border-border/60 backdrop-blur-sm;
+    background-color: hsl(var(--card) / 0.84);
+    box-shadow: var(--panel-surface-shadow);
 }
 
 .workflow-pill {
-    @apply inline-flex min-h-[34px] max-w-full items-center gap-2 rounded-full border border-border/60 bg-muted/20 px-3 py-1.5 text-[11px] font-medium leading-5 text-muted-foreground;
+    @apply inline-flex min-h-[34px] max-w-full items-center gap-2 rounded-full border border-border/70 px-3 py-1.5 text-[11px] font-medium leading-5;
+    background-color: hsl(var(--muted) / 0.6);
+    color: hsl(var(--muted-foreground));
 }
 
 .workflow-pill-active {
-    @apply border-emerald-500/40 bg-emerald-500/10 text-emerald-200;
+    border-color: hsl(var(--primary) / 0.32);
+    background-color: hsl(var(--primary) / 0.14);
+    color: hsl(var(--primary));
 }
 
 .subtle-grid {
     background-image:
-      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 24px 24px;
 }
 
@@ -145,5 +171,58 @@
 }
 
 .surface-note {
-    @apply rounded-xl border border-border/50 bg-background/35 px-4 py-3 text-xs leading-5 text-muted-foreground;
+    @apply rounded-xl border border-border/60 px-4 py-3 text-xs leading-5 text-muted-foreground;
+    background-color: hsl(var(--background) / 0.55);
+}
+
+.emerald-pill {
+    border-color: hsl(var(--primary) / 0.26);
+    background-color: hsl(var(--primary) / 0.14);
+    color: hsl(var(--primary));
+}
+
+.edit-pill {
+    @apply transition-colors;
+    border-color: rgba(124, 92, 165, 0.24);
+    background-color: rgba(124, 92, 165, 0.1);
+    color: rgb(99, 76, 132);
+}
+
+.edit-pill:hover {
+    background-color: rgba(124, 92, 165, 0.16);
+    color: rgb(82, 61, 114);
+}
+
+.soft-danger {
+    @apply transition-colors;
+    border-color: rgba(190, 24, 93, 0.22);
+    background-color: rgba(190, 24, 93, 0.06);
+    color: rgb(159, 18, 57);
+}
+
+.soft-danger:hover {
+    background-color: rgba(190, 24, 93, 0.12);
+    color: rgb(136, 19, 55);
+}
+
+.dark .soft-danger {
+    border-color: rgba(239, 68, 68, 0.2);
+    background-color: rgba(239, 68, 68, 0.05);
+    color: rgb(254, 202, 202);
+}
+
+.dark .soft-danger:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: rgb(254, 242, 242);
+}
+
+.dark .edit-pill {
+    border-color: rgba(129, 140, 248, 0.22);
+    background-color: rgba(129, 140, 248, 0.1);
+    color: rgb(199, 210, 254);
+}
+
+.dark .edit-pill:hover {
+    background-color: rgba(129, 140, 248, 0.16);
+    color: rgb(224, 231, 255);
 }

@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
+import { FILE_ERROR_CONTENT, FILE_LOADING_CONTENT } from '@/lib/editor-state';
 
 interface FileNode {
     name: string;
@@ -80,14 +81,14 @@ const FileTreeItem = memo(({ node, level }: { node: FileNode; level: number }) =
             return;
         }
 
-        setCurrentFile(node.path, "Loading...");
+        setCurrentFile(node.path, FILE_LOADING_CONTENT);
         try {
             const res = await fetch(`/api/file?path=${node.path}`);
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Failed to load file");
             setCurrentFile(node.path, data.content ?? "");
         } catch {
-            setCurrentFile(node.path, "Error loading file");
+            setCurrentFile(node.path, FILE_ERROR_CONTENT);
         }
     };
 
@@ -157,7 +158,7 @@ const FileTreeItem = memo(({ node, level }: { node: FileNode; level: number }) =
                 </button>
 
                 {node.selected && (
-                    <span className="ml-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-200">
+                    <span className="emerald-pill ml-2 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide">
                         {t('explorer.context_badge')}
                     </span>
                 )}
@@ -222,7 +223,7 @@ export const FileTree = () => {
                         <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">{t('explorer.context_title')}</p>
                         <p className="mt-1 text-sm text-foreground">{t('explorer.context_selected', { count: stats.files_count })}</p>
                     </div>
-                    <div className="shrink-0 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-medium text-emerald-200">
+                    <div className="emerald-pill shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium">
                         {formatBytes(stats.total_size)}
                     </div>
                 </div>

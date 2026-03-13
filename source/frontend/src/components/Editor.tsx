@@ -7,6 +7,7 @@ import Editor from 'react-simple-code-editor';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useTranslation } from 'react-i18next';
 import { useSyntaxHighlight } from '@/hooks/useSyntaxHighlight';
+import { FILE_ERROR_CONTENT, FILE_LOADING_CONTENT } from '@/lib/editor-state';
 
 const isHistoryPreview = (path: string) => path.startsWith(".aicoder/history/") && path.endsWith(".diff");
 
@@ -66,7 +67,7 @@ export const CodeEditor = () => {
                 })
                 .catch((error) => {
                     console.error(error);
-                    setCurrentFile(currentFile, "Error loading file");
+                    setCurrentFile(currentFile, FILE_ERROR_CONTENT);
                 });
         }
     }, [fileTreeKey, currentFile, setCurrentFile]);
@@ -113,8 +114,8 @@ export const CodeEditor = () => {
 
     if (!currentFile) return null;
 
-    const isLoading = currentContent === "Loading...";
-    const isError = currentContent === "Error loading file";
+    const isLoading = currentContent === FILE_LOADING_CONTENT;
+    const isError = currentContent === FILE_ERROR_CONTENT;
     const isReadOnly = isHistoryPreview(currentFile);
     const hint = getFileHint(currentFile, t);
 
@@ -166,7 +167,7 @@ export const CodeEditor = () => {
             {hint && (
                 <div className="border-b border-border/40 px-4 py-3">
                     <div className="mx-auto flex max-w-5xl items-start gap-3 rounded-xl border border-amber-400/15 bg-amber-400/8 px-4 py-3">
-                        <hint.icon className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" />
+                        <hint.icon className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-200" />
                         <div className="min-w-0">
                             <p className="text-sm font-medium text-foreground">{hint.title}</p>
                             <p className="mt-1 text-xs leading-5 text-muted-foreground">{hint.description}</p>

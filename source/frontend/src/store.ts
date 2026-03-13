@@ -1,4 +1,4 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
 interface Settings {
     project_name: string;
@@ -22,17 +22,13 @@ interface AppState {
     currentFile: string | null;
     currentContent: string;
     settings: Settings;
-    // Разделенные ключи обновления
     fileTreeKey: number;
     gitHistoryKey: number;
-    
     stats: Stats;
     messages: Message[];
     setCurrentFile: (path: string | null, content: string) => void;
     setSettings: (s: Settings) => void;
     toggleFocus: (path: string, add: boolean) => void;
-    
-    // Обновленная сигнатура триггера
     triggerRefresh: (scope?: 'files' | 'git' | 'all') => void;
     loadStats: () => void;
     setMessages: (fn: (prev: Message[]) => Message[]) => void;
@@ -40,67 +36,61 @@ interface AppState {
 }
 
 const isParentSelected = (path: string, focus: string[]) => {
-    return focus.some(p => !p.startsWith('!') && path.startsWith(p + '/'));
+    return focus.some((value) => !value.startsWith('!') && path.startsWith(value + '/'));
 };
 
 export const useStore = create<AppState>((set, get) => ({
     currentFile: null,
-    currentContent: "",
-    settings: { project_name: "Loading...", context_focus: [] },
-    
+    currentContent: '',
+    settings: { project_name: '', context_focus: [] },
     fileTreeKey: 0,
     gitHistoryKey: 0,
-    
     stats: { files_count: 0, total_size: 0 },
     messages: [],
 
     setCurrentFile: (path, content) => set({ currentFile: path, currentContent: content }),
-    
-    setSettings: (s) => set({ settings: s }),
-    
+    setSettings: (settings) => set({ settings }),
+
     toggleFocus: (path, add) => {
-        const s = get().settings;
-        let newFocus = [...s.context_focus];
-      
-        const targetsPathOrChildren = (p: string) => {
-            const cleanP = p.startsWith('!') ? p.slice(1) : p;
-            if (cleanP === path) return true;
-            if (cleanP.startsWith(path + '/')) return true;
-            return false;
+        const settings = get().settings;
+        let newFocus = [...settings.context_focus];
+
+        const targetsPathOrChildren = (value: string) => {
+            const cleanValue = value.startsWith('!') ? value.slice(1) : value;
+            return cleanValue === path || cleanValue.startsWith(path + '/');
         };
 
-        newFocus = newFocus.filter(p => !targetsPathOrChildren(p));
+        newFocus = newFocus.filter((value) => !targetsPathOrChildren(value));
+
         if (add) {
             if (!isParentSelected(path, newFocus)) {
                 newFocus.push(path);
             }
-        } else {
-            if (isParentSelected(path, newFocus)) {
-                newFocus.push(`!${path}`);
-                newFocus.push(`!${path}/**`);
-            }
+        } else if (isParentSelected(path, newFocus)) {
+            newFocus.push(`!${path}`);
+            newFocus.push(`!${path}/**`);
         }
 
-        const newSettings = { ...s, context_focus: newFocus };
+        const newSettings = { ...settings, context_focus: newFocus };
         set({ settings: newSettings });
-        
+
         fetch('/api/settings', {
             method: 'POST',
-            body: JSON.stringify(newSettings)
-        }).then(() => {
-            get().triggerRefresh('files');
-        }).catch(err => {
-            console.error("Failed to save settings:", err);
-        });
+            body: JSON.stringify(newSettings),
+        })
+            .then(() => {
+                get().triggerRefresh('files');
+            })
+            .catch((error) => {
+                console.error('Failed to save settings:', error);
+            });
     },
 
-    // Умное обновление в зависимости от скоупа
     triggerRefresh: (scope = 'all') => {
         set((state) => {
             const updates: Partial<AppState> = {};
             if (scope === 'files' || scope === 'all') {
                 updates.fileTreeKey = state.fileTreeKey + 1;
-                // Статистика относится к файлам
                 setTimeout(() => get().loadStats(), 0);
             }
             if (scope === 'git' || scope === 'all') {
@@ -112,11 +102,11 @@ export const useStore = create<AppState>((set, get) => ({
 
     loadStats: () => {
         fetch('/api/fs/stats')
-            .then(res => res.json())
-            .then(data => set({ stats: data }))
+            .then((res) => res.json())
+            .then((data) => set({ stats: data }))
             .catch(console.error);
     },
 
     setMessages: (fn) => set((state) => ({ messages: fn(state.messages) })),
     clearMessages: () => set({ messages: [] }),
-}))
+}));

@@ -22,6 +22,7 @@ urlpatterns = [
     path("fs/stats", views.get_stats),
     path("fs/create", views.create_fs_entry),
     path("fs/delete", views.delete_fs_entry),
+    path("fs/move", views.move_fs_entry),
     path("file", views.file_endpoint),
     path("settings", views.settings_endpoint),
 ]

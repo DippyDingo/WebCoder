@@ -51,6 +51,17 @@ class ServiceTests(TestCase):
             files.delete_path(project_root, "notes")
             self.assertFalse((project_root / "notes").exists())
 
+    def test_move_path_supports_rename_and_folder_move(self):
+        with workspace_tempdir() as temp_dir:
+            project_root = Path(temp_dir)
+            files.create_path(project_root, "drafts/story.txt", "file")
+            files.create_path(project_root, "archive", "folder")
+
+            files.move_path(project_root, "drafts/story.txt", "archive/poem.txt")
+
+            self.assertFalse((project_root / "drafts" / "story.txt").exists())
+            self.assertTrue((project_root / "archive" / "poem.txt").is_file())
+
     def test_git_log_repairs_mojibake_commit_message(self):
         expected_message = (
             "\u0414\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u043e "
@@ -269,6 +280,26 @@ class ApiTests(TestCase):
 
             self.assertEqual(delete_folder.status_code, 200)
             self.assertFalse((self.base_dir / "projects" / "alpha" / "docs").exists())
+
+    def test_fs_move_renames_workspace_entries(self):
+        with override_settings(AICODER_WORKDIR=self.base_dir):
+            self.client_one.post("/api/project/create", data=json.dumps({"name": "alpha"}), content_type="application/json")
+            self.client_one.post("/api/project/open", data=json.dumps({"name": "alpha"}), content_type="application/json")
+            self.client_one.post(
+                "/api/fs/create",
+                data=json.dumps({"path": "docs/readme.txt", "type": "file"}),
+                content_type="application/json",
+            )
+
+            move_file = self.client_one.post(
+                "/api/fs/move",
+                data=json.dumps({"old_path": "docs/readme.txt", "new_path": "guides/intro.txt"}),
+                content_type="application/json",
+            )
+
+            self.assertEqual(move_file.status_code, 200)
+            self.assertFalse((self.base_dir / "projects" / "alpha" / "docs" / "readme.txt").exists())
+            self.assertTrue((self.base_dir / "projects" / "alpha" / "guides" / "intro.txt").exists())
 
     def test_system_open_is_blocked_outside_local_mode(self):
         with override_settings(AICODER_WORKDIR=self.base_dir, AICODER_LOCAL_MODE=False):

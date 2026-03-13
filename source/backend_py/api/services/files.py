@@ -111,6 +111,27 @@ def delete_path(root_path, relative_path):
     full_path.unlink()
 
 
+def move_path(root_path, old_relative_path, new_relative_path):
+    old_full_path, old_normalized_path = safe_join(root_path, old_relative_path)
+    new_full_path, new_normalized_path = safe_join(root_path, new_relative_path)
+
+    if not old_normalized_path or not new_normalized_path:
+        raise ApiError("Both source and destination paths are required", status_code=400)
+    if old_normalized_path.startswith(".aicoder/history/"):
+        raise ApiError("History previews cannot be moved", status_code=400)
+    if not old_full_path.exists():
+        raise FileNotFoundError(old_relative_path)
+    if old_normalized_path == new_normalized_path:
+        raise ApiError("Source and destination paths are the same", status_code=400)
+    if new_full_path.exists():
+        raise ApiError("Destination already exists", status_code=400)
+    if old_full_path.is_dir() and new_normalized_path.startswith(f"{old_normalized_path}/"):
+        raise ApiError("Cannot move a folder inside itself", status_code=400)
+
+    new_full_path.parent.mkdir(parents=True, exist_ok=True)
+    old_full_path.rename(new_full_path)
+
+
 def calculate_stats(root_path, settings_payload):
     stats = {"files_count": 0, "total_size": 0}
     for node in list_files_recursive(root_path, "", settings_payload):

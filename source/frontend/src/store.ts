@@ -30,6 +30,7 @@ interface AppState {
     setSettings: (s: Settings) => void;
     toggleFocus: (path: string, add: boolean) => void;
     pruneFocusPath: (path: string) => Promise<void>;
+    movePathReferences: (oldPath: string, newPath: string) => Promise<void>;
     triggerRefresh: (scope?: 'files' | 'git' | 'all') => void;
     loadStats: () => void;
     setMessages: (fn: (prev: Message[]) => Message[]) => void;
@@ -38,6 +39,16 @@ interface AppState {
 
 const isParentSelected = (path: string, focus: string[]) => {
     return focus.some((value) => !value.startsWith('!') && path.startsWith(value + '/'));
+};
+
+const remapPath = (path: string, oldPath: string, newPath: string) => {
+    if (path === oldPath) {
+        return newPath;
+    }
+    if (path.startsWith(oldPath + '/')) {
+        return `${newPath}${path.slice(oldPath.length)}`;
+    }
+    return path;
 };
 
 export const useStore = create<AppState>((set, get) => ({
@@ -109,6 +120,34 @@ export const useStore = create<AppState>((set, get) => ({
             get().triggerRefresh('files');
         } catch (error) {
             console.error('Failed to prune focus path:', error);
+        }
+    },
+
+    movePathReferences: async (oldPath, newPath) => {
+        const state = get();
+        const remappedFocus = state.settings.context_focus.map((value) => {
+            const negative = value.startsWith('!');
+            const cleanValue = negative ? value.slice(1) : value;
+            const nextValue = remapPath(cleanValue, oldPath, newPath);
+            return negative ? `!${nextValue}` : nextValue;
+        });
+
+        const remappedCurrentFile = state.currentFile ? remapPath(state.currentFile, oldPath, newPath) : null;
+        const nextSettings = { ...state.settings, context_focus: remappedFocus };
+
+        set({
+            settings: nextSettings,
+            currentFile: remappedCurrentFile,
+        });
+
+        try {
+            await fetch('/api/settings', {
+                method: 'POST',
+                body: JSON.stringify(nextSettings),
+            });
+            get().triggerRefresh('files');
+        } catch (error) {
+            console.error('Failed to move path references:', error);
         }
     },
 

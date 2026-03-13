@@ -7,6 +7,7 @@ import {
     FileText,
     Folder,
     FolderPlus,
+    Pencil,
     RefreshCw,
     Trash2,
 } from 'lucide-react';
@@ -33,11 +34,18 @@ interface CreateDraft {
     name: string;
 }
 
+interface MoveDraft {
+    oldPath: string;
+    newPath: string;
+    isDir: boolean;
+}
+
 interface FileTreeItemProps {
     node: FileNode;
     level: number;
     deletingPath: string | null;
     onRequestCreate: (type: 'file' | 'folder', parentPath: string) => void;
+    onRequestMove: (node: FileNode) => void;
     onDelete: (node: FileNode) => void;
 }
 
@@ -112,7 +120,7 @@ const TreeActionButton = ({
     </button>
 );
 
-const FileTreeItem = memo(({ node, level, deletingPath, onRequestCreate, onDelete }: FileTreeItemProps) => {
+const FileTreeItem = memo(({ node, level, deletingPath, onRequestCreate, onRequestMove, onDelete }: FileTreeItemProps) => {
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false);
     const [children, setChildren] = useState<FileNode[]>([]);
@@ -232,6 +240,16 @@ const FileTreeItem = memo(({ node, level, deletingPath, onRequestCreate, onDelet
                 )}
 
                 <div className="ml-2 flex shrink-0 items-center gap-1">
+                    <TreeActionButton
+                        title={t('explorer.rename_move', { defaultValue: 'Переименовать или переместить' })}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            onRequestMove(node);
+                        }}
+                    >
+                        <Pencil className="h-3.5 w-3.5" />
+                    </TreeActionButton>
+
                     {node.is_dir && (
                         <>
                             <TreeActionButton
@@ -284,6 +302,7 @@ const FileTreeItem = memo(({ node, level, deletingPath, onRequestCreate, onDelet
                             level={level + 1}
                             deletingPath={deletingPath}
                             onRequestCreate={onRequestCreate}
+                            onRequestMove={onRequestMove}
                             onDelete={onDelete}
                         />
                     ))}
@@ -304,6 +323,7 @@ export const FileTree = () => {
     const [rootFiles, setRootFiles] = useState<FileNode[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [createDraft, setCreateDraft] = useState<CreateDraft | null>(null);
+    const [moveDraft, setMoveDraft] = useState<MoveDraft | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [deletingPath, setDeletingPath] = useState<string | null>(null);
 
@@ -314,6 +334,7 @@ export const FileTree = () => {
     const currentFile = useStore((s) => s.currentFile);
     const setCurrentFile = useStore((s) => s.setCurrentFile);
     const pruneFocusPath = useStore((s) => s.pruneFocusPath);
+    const movePathReferences = useStore((s) => s.movePathReferences);
     const { t } = useTranslation();
 
     useEffect(() => {
@@ -334,7 +355,17 @@ export const FileTree = () => {
     }, [fileTreeKey]);
 
     const beginCreate = (type: 'file' | 'folder', parentPath = '') => {
+        setMoveDraft(null);
         setCreateDraft({ type, parentPath, name: '' });
+    };
+
+    const beginMove = (node: FileNode) => {
+        setCreateDraft(null);
+        setMoveDraft({
+            oldPath: node.path,
+            newPath: node.path,
+            isDir: node.is_dir,
+        });
     };
 
     const submitCreate = async () => {
@@ -424,6 +455,46 @@ export const FileTree = () => {
             toast.error(message);
         } finally {
             setDeletingPath(null);
+        }
+    };
+
+    const submitMove = async () => {
+        if (!moveDraft) return;
+
+        const nextPath = moveDraft.newPath.trim().replace(/\\/g, '/').replace(/^\/+|\/+$/g, '');
+        if (!nextPath) {
+            toast.error(t('explorer.move_name_required', { defaultValue: 'Укажите новый путь' }));
+            return;
+        }
+        if (nextPath === moveDraft.oldPath) {
+            toast.error(t('explorer.move_same_path', { defaultValue: 'Укажите другой путь или имя' }));
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const response = await fetch('/api/fs/move', {
+                method: 'POST',
+                body: JSON.stringify({ old_path: moveDraft.oldPath, new_path: nextPath }),
+            });
+            const data = await readApiPayload(response);
+            if (!response.ok) {
+                throw new Error(data.message || t('common.error', { defaultValue: 'Ошибка' }));
+            }
+
+            await movePathReferences(moveDraft.oldPath, nextPath);
+            setMoveDraft(null);
+            toast.success(
+                moveDraft.isDir
+                    ? t('explorer.folder_moved', { defaultValue: 'Папка перемещена' })
+                    : t('explorer.file_moved', { defaultValue: 'Файл перемещён' })
+            );
+            triggerRefresh('files');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : t('common.error', { defaultValue: 'Ошибка' });
+            toast.error(message);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -541,6 +612,67 @@ export const FileTree = () => {
                         </div>
                     </div>
                 )}
+
+                {moveDraft && (
+                    <div className="panel-surface mt-3 p-3">
+                        <div className="flex flex-col gap-3">
+                            <div className="min-w-0">
+                                <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+                                    {moveDraft.isDir
+                                        ? t('explorer.move_folder_title', { defaultValue: 'Перемещение папки' })
+                                        : t('explorer.move_file_title', { defaultValue: 'Переименование или перемещение файла' })}
+                                </p>
+                                <p className="mt-1 break-all text-xs leading-5 text-muted-foreground">
+                                    {t('explorer.move_from', {
+                                        defaultValue: `Старый путь: ${moveDraft.oldPath}`,
+                                        path: moveDraft.oldPath,
+                                    })}
+                                </p>
+                            </div>
+
+                            <input
+                                autoFocus
+                                value={moveDraft.newPath}
+                                onChange={(event) => setMoveDraft((prev) => prev ? { ...prev, newPath: event.target.value } : prev)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter') {
+                                        void submitMove();
+                                    }
+                                    if (event.key === 'Escape') {
+                                        setMoveDraft(null);
+                                    }
+                                }}
+                                placeholder={t('explorer.move_placeholder', { defaultValue: 'например, src/new-name.txt' })}
+                                className="w-full rounded-xl border border-border bg-secondary/40 px-3 py-2.5 text-sm outline-none transition-all placeholder:text-muted-foreground/50 focus:border-primary focus:ring-1 focus:ring-primary/40"
+                            />
+
+                            <p className="text-xs leading-5 text-muted-foreground">
+                                {t('explorer.move_hint', { defaultValue: 'Можно изменить только имя или указать новый путь с вложенной папкой.' })}
+                            </p>
+
+                            <div className="flex justify-end gap-2">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 px-3 text-xs"
+                                    onClick={() => setMoveDraft(null)}
+                                >
+                                    {t('common.cancel', { defaultValue: 'Отмена' })}
+                                </Button>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    className="h-8 px-4 text-xs"
+                                    disabled={isSubmitting}
+                                    onClick={() => void submitMove()}
+                                >
+                                    {t('explorer.rename_move_apply', { defaultValue: 'Применить' })}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <ScrollArea className="flex-1">
@@ -555,6 +687,7 @@ export const FileTree = () => {
                                 level={0}
                                 deletingPath={deletingPath}
                                 onRequestCreate={beginCreate}
+                                onRequestMove={beginMove}
                                 onDelete={deleteEntry}
                             />
                         ))

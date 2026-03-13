@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Supabase / Scale Light Mode (Fallback, though we focus on Dark) */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 142 76% 36%; /* Supabase Green */
+    --primary-foreground: 355.7 100% 97.3%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 142 76% 36%;
+    --radius: 0.3rem;
+  }
+ 
+  .dark {
+    /* Supabase Dark Mode inspired (Zinc-950 base) */
+    --background: 240 10% 3.9%; /* #09090b */
+    --foreground: 0 0% 98%;
+    
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    
+    --primary: 142 70% 50%; /* Emerald 500 */
+    --primary-foreground: 144 80% 5%;
+    
+    --secondary: 240 3.7% 15.9%; /* Zinc 800 */
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --border: 240 3.7% 15.9%; /* Subtle borders */
+    --input: 240 3.7% 15.9%;
+    --ring: 142 70% 50%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-emerald-500/30 selection:text-emerald-100;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background-image:
+      radial-gradient(circle at top, rgba(16, 185, 129, 0.08), transparent 30%),
+      radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.06), transparent 22%);
+  }
+}
+
+/* Custom Scrollbar (Thin & Dark) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a; /* Zinc 800 */
+  border-radius: 5px;
+  border: 2px solid #09090b; /* Match bg */
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46; /* Zinc 700 */
+}
+
+/* Utilities */
+.compact-header {
+    @apply min-h-[64px] border-b bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-start justify-between gap-4 shrink-0 z-10;
+}
+
+.app-header {
+    @apply items-center;
+}
+
+.panel-title {
+    @apply text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.24em] flex items-center gap-2;
+}
+
+.workspace-shell {
+    background-image:
+      linear-gradient(180deg, rgba(9, 9, 11, 0.96) 0%, rgba(9, 9, 11, 1) 100%);
+}
+
+.workspace-sidebar {
+    @apply bg-slate-950/55 backdrop-blur-sm;
+}
+
+.workspace-main {
+    background-image:
+      linear-gradient(180deg, rgba(15, 23, 42, 0.12) 0%, rgba(9, 9, 11, 0) 25%);
+}
+
+.panel-surface {
+    @apply rounded-xl border border-border/60 bg-card/60 shadow-[0_18px_60px_rgba(0,0,0,0.22)] backdrop-blur-sm;
+}
+
+.workflow-pill {
+    @apply inline-flex min-h-[34px] max-w-full items-center gap-2 rounded-full border border-border/60 bg-muted/20 px-3 py-1.5 text-[11px] font-medium leading-5 text-muted-foreground;
+}
+
+.workflow-pill-active {
+    @apply border-emerald-500/40 bg-emerald-500/10 text-emerald-200;
+}
+
+.subtle-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+.panel-header-copy {
+    @apply min-w-0 flex-1;
+}
+
+.panel-header-copy p {
+    @apply mt-1 max-w-full text-xs leading-5 text-muted-foreground/80;
+    overflow-wrap: anywhere;
+}
+
+.surface-note {
+    @apply rounded-xl border border-border/50 bg-background/35 px-4 py-3 text-xs leading-5 text-muted-foreground;
+}

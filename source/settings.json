@@ -1,0 +1,11 @@
+{
+  "project_name": "Untitled project",
+  "ignore_patterns": [
+    ".git",
+    ".aicoder"
+  ],
+  "context_focus": [
+
+  ],
+  "max_file_size_kb": 100
+}
